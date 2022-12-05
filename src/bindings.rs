@@ -1,6 +1,7 @@
 use std::os::raw::*;
 
 pub type TobiiError = c_uint;
+
 pub const TOBII_ERROR_NO_ERROR: TobiiError = 0;
 pub const TOBII_ERROR_INTERNAL: TobiiError = 1;
 pub const TOBII_ERROR_INSUFFICIENT_LICENSE: TobiiError = 2;
@@ -29,6 +30,7 @@ pub struct TobiiVersion {
 }
 
 pub type LogLevel = c_uint;
+
 pub const TOBII_LOG_LEVEL_ERROR: LogLevel = 0;
 pub const TOBII_LOG_LEVEL_WARN: LogLevel = 1;
 pub const TOBII_LOG_LEVEL_INFO: LogLevel = 2;
@@ -43,8 +45,16 @@ pub struct TobiiCustomLog {
     pub log_func: TobiiLogFunc,
 }
 
-pub type TobiiMallocFunc = std::option::Option<unsafe extern "C" fn(mem_context: *mut c_void, size: usize) -> *mut c_void>;
-pub type TobiiFreeFunc = std::option::Option<unsafe extern "C" fn(mem_context: *mut c_void, ptr: *mut c_void)>;
+pub type TobiiMallocFunc = std::option::Option<
+    unsafe extern "C" fn(mem_context: *mut c_void,
+                         size: usize,
+    ) -> *mut c_void
+>;
+pub type TobiiFreeFunc = std::option::Option<
+    unsafe extern "C" fn(mem_context: *mut c_void,
+                         ptr: *mut c_void,
+    )
+>;
 
 #[repr(C)]
 pub struct TobiiCustomAlloc {
@@ -58,12 +68,16 @@ pub struct TobiiApi {
     _unused: [u8; 0],
 }
 
-pub type TobiiDeviceUrlReceiver = std::option::Option<unsafe extern "C" fn(url: *const c_char, user_data: *mut c_void)>;
+pub type TobiiDeviceUrlReceiver = std::option::Option<
+    unsafe extern "C" fn(url: *const c_char,
+                         user_data: *mut c_void,
+    ),
+>;
 
 // TODO don't know what types these are meant to be
-pub const TOBII_DEVICE_GENERATION_G5: usize  = 0x00000002;
-pub const TOBII_DEVICE_GENERATION_IS3: usize = 0x00000004;
-pub const TOBII_DEVICE_GENERATION_IS4: usize = 0x00000008;
+pub const TOBII_DEVICE_GENERATION_G5: c_uint = 0x00000002;
+pub const TOBII_DEVICE_GENERATION_IS3: c_uint = 0x00000004;
+pub const TOBII_DEVICE_GENERATION_IS4: c_uint = 0x00000008;
 
 #[repr(C)]
 pub struct TobiiDevice {
@@ -71,6 +85,7 @@ pub struct TobiiDevice {
 }
 
 pub type TobiiFieldOfUse = c_uint;
+
 pub const TOBII_FIELD_OF_USE_INTERACTIVE: TobiiFieldOfUse = 1;
 pub const TOBII_FIELD_OF_USE_ANALYTICAL: TobiiFieldOfUse = 2;
 
@@ -101,6 +116,7 @@ pub struct TobiiTrackBox {
 }
 
 pub type TobiiState = c_uint;
+
 pub const TOBII_STATE_POWER_SAVE_ACTIVE: TobiiState = 0;
 pub const TOBII_STATE_REMOTE_WAKE_ACTIVE: TobiiState = 1;
 pub const TOBII_STATE_DEVICE_PAUSED: TobiiState = 2;
@@ -111,16 +127,19 @@ pub const TOBII_STATE_CALIBRATION_ID: TobiiState = 6;
 pub const TOBII_STATE_CALIBRATION_ACTIVE: TobiiState = 7;
 
 pub type TobiiStateBool = c_uint;
+
 pub const TOBII_STATE_BOOL_FALSE: TobiiStateBool = 0;
 pub const TOBII_STATE_BOOL_TRUE: TobiiStateBool = 1;
 
 pub type TobiiStateString = [c_char; 512];
 
 pub type TobiiSupported = c_uint;
+
 pub const TOBII_NOT_SUPPORTED: TobiiSupported = 0;
 pub const TOBII_SUPPORTED: TobiiSupported = 1;
 
 pub type TobiiCapability = c_uint;
+
 pub const TOBII_CAPABILITY_DISPLAY_AREA_WRITABLE: TobiiCapability = 0;
 pub const TOBII_CAPABILITY_CALIBRATION_2D: TobiiCapability = 1;
 pub const TOBII_CAPABILITY_CALIBRATION_3D: TobiiCapability = 2;
@@ -142,6 +161,7 @@ pub const TOBII_CAPABILITY_COMPOUND_STREAM_WEARABLE_IMPROVE_USER_POSITION_HMD: T
 pub const TOBII_CAPABILITY_COMPOUND_STREAM_WEARABLE_INCREASE_EYE_RELIEF: TobiiCapability = 18;
 
 pub type TobiiStream = c_uint;
+
 pub const TOBII_STREAM_GAZE_POINT: TobiiStream = 0;
 pub const TOBII_STREAM_GAZE_ORIGIN: TobiiStream = 1;
 pub const TOBII_STREAM_EYE_POSITION_NORMALIZED: TobiiStream = 2;
@@ -158,6 +178,7 @@ pub const TOBII_STREAM_WEARABLE_FOVEATED_GAZE: TobiiStream = 11;
 pub type TobiiDataReceiver = std::option::Option<unsafe extern "C" fn(data: *const c_void, size: usize, user_data: *mut c_void)>;
 
 pub type TobiiValidity = c_uint;
+
 pub const TOBII_VALIDITY_INVALID: TobiiValidity = 0;
 pub const TOBII_VALIDITY_VALID: TobiiValidity = 1;
 
@@ -169,6 +190,7 @@ pub struct TobiiDisplayArea {
 }
 
 pub type TobiiEnabledEye = c_uint;
+
 pub const TOBII_ENABLED_EYE_LEFT: TobiiEnabledEye = 0;
 pub const TOBII_ENABLED_EYE_RIGHT: TobiiEnabledEye = 1;
 pub const TOBII_ENABLED_EYE_BOTH: TobiiEnabledEye = 2;
@@ -180,7 +202,7 @@ extern {
 
     pub fn tobii_api_create(api: *mut *mut TobiiApi, custom_alloc: *const TobiiCustomAlloc, custom_log: *const TobiiCustomLog) -> TobiiError;
     pub fn tobii_api_destroy(api: *mut TobiiApi) -> TobiiError;
-    pub fn tobii_system_cloc(api: *mut TobiiApi, timestamp_us: *mut c_long) -> TobiiError; // TODO validate int type is correct
+    pub fn tobii_system_clock(api: *mut TobiiApi, timestamp_us: *mut c_longlong) -> TobiiError; // TODO validate int type is correct
     pub fn tobii_enumerate_local_device_urls(api: *mut TobiiApi, receiver: TobiiDeviceUrlReceiver, user_data: *mut c_void) -> TobiiError;
     pub fn tobii_enumerate_local_device_urls_ex(api: *mut TobiiApi, receiver: TobiiDeviceUrlReceiver, user_data: *mut c_void, device_generations: c_uint) -> TobiiError;
     pub fn tobii_wait_for_callbacks(device_count: c_int, devices: *const *mut TobiiDevice) -> TobiiError;
