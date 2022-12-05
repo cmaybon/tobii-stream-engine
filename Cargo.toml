@@ -1,5 +1,5 @@
 [package]
-name = "tobii_stream_engine"
+name = "tobii-stream-engine"
 version = "0.1.0"
 edition = "2021"
 
