@@ -30,6 +30,14 @@ impl Api {
         }
     }
 
+    fn error_message_to_string(error: TobiiError) -> String {
+        let message = unsafe {
+            let message_ptr = tobii_error_message(error);
+            std::ffi::CStr::from_ptr(message_ptr).to_str().unwrap()
+        };
+        message.to_string()
+    }
+
     pub fn get_api_version_string() -> String {
         let v: TobiiVersion = unsafe {
             let mut version = TobiiVersion::default();
