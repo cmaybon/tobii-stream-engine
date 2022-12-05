@@ -16,7 +16,7 @@ impl Drop for Api {
 }
 
 impl Api {
-    unsafe extern "C" fn custom_api_log(log_context: *mut c_void, level: LogLevel, text: *const c_char) {
+    unsafe extern "C" fn custom_api_log(_log_context: *mut c_void, level: LogLevel, text: *const c_char) {
         // if level > TOBII_LOG_LEVEL_WARN {
         //     return;
         // }

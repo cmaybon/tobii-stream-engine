@@ -202,7 +202,7 @@ extern {
 
     pub fn tobii_api_create(api: *mut *mut TobiiApi, custom_alloc: *const TobiiCustomAlloc, custom_log: *const TobiiCustomLog) -> TobiiError;
     pub fn tobii_api_destroy(api: *mut TobiiApi) -> TobiiError;
-    pub fn tobii_system_clock(api: *mut TobiiApi, timestamp_us: *mut c_longlong) -> TobiiError; // TODO validate int type is correct
+    pub fn tobii_system_clock(api: *mut TobiiApi, timestamp_us: *mut c_longlong) -> TobiiError;
     pub fn tobii_enumerate_local_device_urls(api: *mut TobiiApi, receiver: TobiiDeviceUrlReceiver, user_data: *mut c_void) -> TobiiError;
     pub fn tobii_enumerate_local_device_urls_ex(api: *mut TobiiApi, receiver: TobiiDeviceUrlReceiver, user_data: *mut c_void, device_generations: c_uint) -> TobiiError;
     pub fn tobii_wait_for_callbacks(device_count: c_int, devices: *const *mut TobiiDevice) -> TobiiError;
