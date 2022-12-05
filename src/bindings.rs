@@ -71,7 +71,7 @@ pub struct TobiiApi {
 pub type TobiiDeviceUrlReceiver = std::option::Option<
     unsafe extern "C" fn(url: *const c_char,
                          user_data: *mut c_void,
-    ),
+    )
 >;
 
 // TODO don't know what types these are meant to be

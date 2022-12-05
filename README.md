@@ -19,10 +19,12 @@ And make sure to check the license that is included in the zip when you download
 # Example
 
 ```rust
-use tobii_stream_engine;
+use tobii_stream_engine::api::Api;
 
 fn main() {
-    
+    let mut api = Api::new();
+    println!("{}", Api::get_api_version_string());
+    println!("{}", api.system_clock());
 }
 ```
 

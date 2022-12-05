@@ -16,12 +16,26 @@ impl Drop for Api {
 }
 
 impl Api {
+    unsafe extern "C" fn custom_api_log(log_context: *mut c_void, level: LogLevel, text: *const c_char) {
+        // if level > TOBII_LOG_LEVEL_WARN {
+        //     return;
+        // }
+        println!("Log reached");
+        println!("INTERNAL LOG - {}: {}", level, std::ffi::CStr::from_ptr(text).to_str().unwrap());
+    }
+
+    /// Initializes the stream engine API using default memory allocation and logging functions.
     pub fn new() -> Api {
         unsafe {
             let mut api_ptr: *mut TobiiApi = std::mem::zeroed();
+            let custom_log = TobiiCustomLog {
+                log_context: std::ptr::null_mut(),
+                log_func: Some(Api::custom_api_log),
+            };
+
             assert_eq!(tobii_api_create(&mut api_ptr as *mut *mut TobiiApi,
                                         std::ptr::null_mut(),
-                                        std::ptr::null_mut()),
+                                        &custom_log as *const TobiiCustomLog),
                        TOBII_ERROR_NO_ERROR);
             println!("Successfully created API");
             Api {
@@ -30,14 +44,11 @@ impl Api {
         }
     }
 
-    fn error_message_to_string(error: TobiiError) -> String {
-        let message = unsafe {
-            let message_ptr = tobii_error_message(error);
-            std::ffi::CStr::from_ptr(message_ptr).to_str().unwrap()
-        };
-        message.to_string()
-    }
-
+    /// Returns a string of the current API version in the format `major.minor.revision.build`.
+    /// - `major` incremented for API changes which are not backward-compatible.
+    /// - `minor` incremented for releases which add new, but backward-compatible, API features.
+    /// - `revision` incremented for minor changes and bug fixes which do not change the API.
+    /// - `build` incremented every time a new build is done, even when there are no changes.
     pub fn get_api_version_string() -> String {
         let v: TobiiVersion = unsafe {
             let mut version = TobiiVersion::default();
@@ -86,5 +97,13 @@ impl Api {
 
         assert_eq!(error, TOBII_ERROR_NO_ERROR);
         println!("{:?}", list);
+    }
+
+    fn error_message_to_string(error: TobiiError) -> String {
+        let message = unsafe {
+            let message_ptr = tobii_error_message(error);
+            std::ffi::CStr::from_ptr(message_ptr).to_str().unwrap()
+        };
+        message.to_string()
     }
 }
