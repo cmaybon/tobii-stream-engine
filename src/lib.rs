@@ -58,7 +58,7 @@ pub struct CustomLog {
     pub log_func: LogFn,
 }
 
-#[link(name = "lib/tobii_stream_engine")]
+#[link(name = "third_party/tobii/tobii_stream_engine")]
 extern {
     pub fn tobii_api_create(api: *mut *mut Api, custom_alloc: *const CustomAlloc, custom_log: *const CustomLog) -> Error;
     pub fn tobii_error_message(error: Error) -> *const std::os::raw::c_char;

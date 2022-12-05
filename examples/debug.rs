@@ -53,7 +53,9 @@ fn safe_get_api_version() -> Error {
             revision: 0,
             build: 0
         };
-        tobii_get_api_version(&mut version)
+        let error = tobii_get_api_version(&mut version);
+        println!("{:?}", version);
+        error
     }
 }
 
