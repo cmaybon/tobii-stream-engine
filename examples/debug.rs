@@ -19,10 +19,10 @@ pub enum TobiiError {
     ConflictingApiInstances,
     CalibrationBusy,
     CallbackInProgress,
-    Unknown(Error),
+    Unknown(TobiiError),
 }
 
-pub fn status_to_result(error: Error) -> Result<(),TobiiError> {
+pub fn status_to_result(error: TobiiError) -> Result<(),TobiiError> {
     match error {
         TOBII_ERROR_NO_ERROR => Ok(()),
         TOBII_ERROR_INTERNAL => Err(TobiiError::Internal),
@@ -45,14 +45,9 @@ pub fn status_to_result(error: Error) -> Result<(),TobiiError> {
     }
 }
 
-fn safe_get_api_version() -> Error {
+fn safe_get_api_version() -> TobiiError {
     unsafe {
-        let mut version = ApiVersion {
-            major: 0,
-            minor: 0,
-            revision: 0,
-            build: 0
-        };
+        let mut version = TobiiVersion::default();
         let error = tobii_get_api_version(&mut version);
         println!("{:?}", version);
         error
