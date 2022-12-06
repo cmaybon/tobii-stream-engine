@@ -1,4 +1,5 @@
 use std::os::raw::*;
+use std::fmt::{Debug, Formatter};
 
 pub type TobiiError = c_uint;
 
@@ -101,6 +102,23 @@ pub struct TobiiDeviceInfo {
     pub lot_id: [c_char; 128],
     pub integration_type: [c_char; 256],
     pub runtime_build_version: [c_char; 256],
+}
+
+impl Default for TobiiDeviceInfo {
+    fn default() -> Self {
+        TobiiDeviceInfo {
+            serial_number: [c_char::default(); 256],
+            model: [c_char::default(); 256],
+            generation: [c_char::default(); 256],
+            firmware_version: [c_char::default(); 256],
+            integration_id: [c_char::default(); 128],
+            hw_calibration_version: [c_char::default(); 128],
+            hw_calibration_date: [c_char::default(); 128],
+            lot_id: [c_char::default(); 128],
+            integration_type: [c_char::default(); 256],
+            runtime_build_version:[c_char::default(); 256],
+        }
+    }
 }
 
 #[repr(C)]

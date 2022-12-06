@@ -1,4 +1,5 @@
 use crate::bindings::*;
+use crate::helpers;
 use std::os::raw::*;
 use std::ffi::{CStr, CString};
 
@@ -13,6 +14,7 @@ pub enum FieldOfUse {
     Analytical = TOBII_FIELD_OF_USE_ANALYTICAL as isize,
 }
 
+#[derive(Debug)]
 pub enum Error {
     NoError = TOBII_ERROR_NO_ERROR as isize,
     Internal = TOBII_ERROR_INTERNAL as isize,
@@ -31,13 +33,12 @@ pub enum Error {
     ConflictingApiInstances = TOBII_ERROR_CONFLICTING_API_INSTANCES as isize,
     CalibrationBusy = TOBII_ERROR_CALIBRATION_BUSY as isize,
     CallbackInProgress = TOBII_ERROR_CALLBACK_IN_PROGRESS as isize,
-    Unknown(TobiiError),
 }
 
 impl Error {
     fn tobii_error_as_result(tobii_error: TobiiError) -> Result<(), Error> {
         match tobii_error {
-            TOBII_ERROR_NO_ERROR => Err(Error::NoError),
+            TOBII_ERROR_NO_ERROR => Ok(()),
             TOBII_ERROR_INTERNAL => Err(Error::Internal),
             TOBII_ERROR_INSUFFICIENT_LICENSE => Err(Error::InsufficientLicense),
             TOBII_ERROR_NOT_SUPPORTED => Err(Error::NotSupported),
@@ -54,12 +55,15 @@ impl Error {
             TOBII_ERROR_CONFLICTING_API_INSTANCES => Err(Error::ConflictingApiInstances),
             TOBII_ERROR_CALIBRATION_BUSY => Err(Error::CalibrationBusy),
             TOBII_ERROR_CALLBACK_IN_PROGRESS => Err(Error::CallbackInProgress),
-            _ => Err(Error::Unknown(tobii_error)),
+            _ => panic!("Unknown Tobii error \"{}\".", tobii_error),
         }
     }
 }
 
+#[derive(Debug)]
 pub struct Device {
+    ptr: *mut TobiiDevice,
+    url: String,
     pub serial_number: String,
     pub model: String,
     pub generation: String,
@@ -70,14 +74,13 @@ pub struct Device {
     pub lot_id: String,
     pub integration_type: String,
     pub runtime_build_version: String,
-    ptr: *mut TobiiDevice,
-    url: String,
 }
 
 impl Device {
-    pub fn new(api: Api, url: String, field_of_use: FieldOfUse) -> Result<Device, Error> {
+    pub fn new(api: &Api, url: String, field_of_use: FieldOfUse) -> Result<Device, Error> {
         unsafe {
-            let url_c = CString::new(&url).unwrap().as_c_str();
+            let url_c = CString::new(url.as_bytes()).unwrap();
+            let url_c = url_c.as_c_str();
             let mut device_ptr: *mut TobiiDevice = std::mem::zeroed();
             let error = tobii_device_create(api.ptr,
                                             url_c.as_ptr(),
@@ -88,20 +91,40 @@ impl Device {
                     Ok(Device {
                         ptr: device_ptr,
                         url,
-                        ..Default::default()
+                        serial_number: "".to_string(),
+                        model: "".to_string(),
+                        generation: "".to_string(),
+                        firmware_version: "".to_string(),
+                        integration_id: "".to_string(),
+                        hw_calibration_version: "".to_string(),
+                        hw_calibration_date: "".to_string(),
+                        lot_id: "".to_string(),
+                        integration_type: "".to_string(),
+                        runtime_build_version: "".to_string()
                     })
                 }
-                Err(error_type) => error_type
+                Err(error_type) => Err(error_type)
             }
         }
     }
 
-    pub fn get_info(&mut self) {
-
+    pub fn reconnect(&mut self) -> Result<(), Error> {
+        let error = unsafe {
+            tobii_device_reconnect(self.ptr)
+        };
+        Error::tobii_error_as_result(error)
     }
 
-    pub fn reconnect(&mut self) {
-
+    pub fn get_info(&mut self) {
+        unsafe {
+            let mut tobii_device_info = &mut TobiiDeviceInfo::default() as *mut TobiiDeviceInfo;
+            let error = tobii_get_device_info(self.ptr, tobii_device_info);
+            assert_eq!(error, TOBII_ERROR_NO_ERROR);
+            self.serial_number = helpers::c_char_ptr_to_string((*tobii_device_info).serial_number.as_ptr());
+            self.model = helpers::c_char_ptr_to_string((*tobii_device_info).model.as_ptr());
+            self.generation = helpers::c_char_ptr_to_string((*tobii_device_info).generation.as_ptr());
+            self.firmware_version = helpers::c_char_ptr_to_string((*tobii_device_info).firmware_version.as_ptr());
+        }
     }
 }
 
@@ -134,7 +157,6 @@ impl Api {
         println!("INTERNAL LOG - {}: {}", level, std::ffi::CStr::from_ptr(text).to_str().unwrap());
     }
 
-    /// Initializes the stream engine API using default memory allocation and logging functions.
     pub fn new() -> Api {
         unsafe {
             let mut api_ptr: *mut TobiiApi = std::mem::zeroed();
@@ -181,38 +203,36 @@ impl Api {
         timestamp
     }
 
-    pub fn devices(&mut self) {
-        /// Will be called for each device found during enumeration.
-        ///
-        /// Based on the example code in the Tobii documentation C++ example [here](https://developer.tobii.com/product-integration/stream-engine/getting-started/)
-        /// # Arguments
-        /// * `url` - A zero terminated string for the URL of the device. This pointer will be invalid after
-        ///    returning from the function. Make sure to make a copy of the string rather than storing the pointer.
-        /// * `user_data` - Custom pointer sent to `tobii_enumerate_local_device_urls
-        unsafe extern "C" fn device_url_receiver(url: *const c_char, user_data: *mut c_void) {
-            println!("called from C++");
-            let buffer = &mut *(user_data as *mut Vec<String>);
-
-            let url_str = std::ffi::CStr::from_ptr(url).to_str().unwrap().to_string();
-            if url_str.len() < 256 {
-                buffer.push(url_str);
-            }
+    /// Will be called for each device found during enumeration.
+    ///
+    /// Based on the example code in the Tobii documentation C++ example [here](https://developer.tobii.com/product-integration/stream-engine/getting-started/)
+    /// # Arguments
+    /// * `url` - A zero terminated string for the URL of the device. This pointer will be invalid after
+    ///    returning from the function. Make sure to make a copy of the string rather than storing the pointer.
+    /// * `user_data` - Custom pointer sent to `tobii_enumerate_local_device_urls
+    unsafe extern "C" fn device_url_receiver(url: *const c_char, user_data: *mut c_void) {
+        let buffer = &mut *(user_data as *mut Vec<String>);
+        let url_str = CStr::from_ptr(url).to_str().unwrap().to_string();
+        if url_str.len() < 256 {
+            buffer.push(url_str);
         }
+    }
 
+    pub fn device_urls(&mut self) -> Vec<String> {
         let mut list: Vec<String> = Vec::new();
         let list_ptr = &mut list as *mut Vec<String>;
         let error = unsafe {
-            tobii_enumerate_local_device_urls(self.ptr, Some(device_url_receiver), list_ptr as *mut c_void)
+            tobii_enumerate_local_device_urls(self.ptr, Some(Api::device_url_receiver), list_ptr as *mut c_void)
         };
 
         assert_eq!(error, TOBII_ERROR_NO_ERROR);
-        println!("{:?}", list);
+        list
     }
 
     fn error_message_to_string(error: TobiiError) -> String {
         let message = unsafe {
             let message_ptr = tobii_error_message(error);
-            std::ffi::CStr::from_ptr(message_ptr).to_str().unwrap()
+            CStr::from_ptr(message_ptr).to_str().unwrap()
         };
         message.to_string()
     }
