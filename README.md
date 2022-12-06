@@ -10,7 +10,8 @@ For most people it will be under the`TOBII TECH GETTING STARTED SOFTWARE DEVELOP
 And make sure to check the license that is included in the zip when you download the `Tobii XR Native SDK`, as one might be more up-to-date than the other.
 
 # Install
-0. Install the Tobii software for your eye tracker. If you are using the Tobii Eye Tracker 5 it will come with the runtime.
+0. Install the Tobii runtime for your eye tracker. If you are using the Tobii Eye Tracker 5 it will come with the required software installs.
+   If you're using another product you will need to contact Tobii and request the PDK for that product.
 1. Add `tobii_stream_engine = "0.1.0"` to your `Cargo.toml` dependencies
 2. Download the [Tobii XR Native SDK](https://developer.tobii.com/download-packages/tobii-xr-native-sdk/)
 3. From the downloaded SDK, add `stream_engine/lib/tobii/tobii_stream_engine.lib` to `third_party/tobii/`
@@ -26,12 +27,13 @@ And make sure to check the license that is included in the zip when you download
 # Example
 
 ```rust
-use tobii_stream_engine::api::Api;
+use tobii_stream_engine::api::{Api, Device, FieldOfUse, Error};
 
 fn main() {
     let mut api = Api::new();
-    println!("{}", Api::get_api_version_string());
-    println!("{}", api.system_clock());
+    let urls = api.device_urls();
+    let mut device = api.new_device(urls[0].clone(), FieldOfUse::Interactive).unwrap();
+    device.get_info();
 }
 ```
 

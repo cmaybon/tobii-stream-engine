@@ -249,4 +249,8 @@ impl Api {
         };
         message.to_string()
     }
+
+    pub fn new_device(&self, url: String, field_of_use: FieldOfUse) -> Result<Device, Error> {
+        Device::new(&self, url, field_of_use)
+    }
 }
