@@ -229,6 +229,19 @@ impl Api {
         list
     }
 
+    pub fn get_all_interactive_devices(&mut self) -> Vec<Device> {
+        let urls = self.device_urls();
+        let mut devices: Vec<Device> = vec![];
+        for url in urls {
+            let result = Device::new(&self, url, FieldOfUse::Interactive);
+            match result {
+                Ok(device) => devices.push(device),
+                Err(_) => {}
+            }
+        }
+        devices
+    }
+
     fn error_message_to_string(error: TobiiError) -> String {
         let message = unsafe {
             let message_ptr = tobii_error_message(error);
