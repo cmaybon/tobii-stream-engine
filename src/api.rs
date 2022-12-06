@@ -1,5 +1,119 @@
 use crate::bindings::*;
 use std::os::raw::*;
+use std::ffi::{CStr, CString};
+
+pub enum FieldOfUse {
+    /// Device will be created for interactive use. No special license is required for this type use.
+    /// Eye tracking data is only used as a user input for interaction experiences and cannot be
+    /// stored, transmitted, nor analyzed or processed for other purposes.
+    Interactive = TOBII_FIELD_OF_USE_INTERACTIVE as isize,
+    /// Device will be created for analytical use. This requires a special license from Tobii.
+    /// Eye tracking data is used to analyze user attention, behavior or decisions in applications
+    /// that store, transfer, record or analyze the data.
+    Analytical = TOBII_FIELD_OF_USE_ANALYTICAL as isize,
+}
+
+pub enum Error {
+    NoError = TOBII_ERROR_NO_ERROR as isize,
+    Internal = TOBII_ERROR_INTERNAL as isize,
+    InsufficientLicense = TOBII_ERROR_INSUFFICIENT_LICENSE as isize,
+    NotSupported = TOBII_ERROR_NOT_SUPPORTED as isize,
+    NotAvailable = TOBII_ERROR_NOT_AVAILABLE as isize,
+    ConnectionFailed = TOBII_ERROR_CONNECTION_FAILED as isize,
+    TimedOut = TOBII_ERROR_TIMED_OUT as isize,
+    AllocationFailed = TOBII_ERROR_ALLOCATION_FAILED as isize,
+    InvalidParameter = TOBII_ERROR_INVALID_PARAMETER as isize,
+    CalibrationAlreadyStarted = TOBII_ERROR_CALIBRATION_ALREADY_STARTED as isize,
+    CalibrationNotStarted = TOBII_ERROR_CALIBRATION_NOT_STARTED as isize,
+    AlreadySubscribed = TOBII_ERROR_ALREADY_SUBSCRIBED as isize,
+    NotSubscribed = TOBII_ERROR_NOT_SUBSCRIBED as isize,
+    OperationFailed = TOBII_ERROR_OPERATION_FAILED as isize,
+    ConflictingApiInstances = TOBII_ERROR_CONFLICTING_API_INSTANCES as isize,
+    CalibrationBusy = TOBII_ERROR_CALIBRATION_BUSY as isize,
+    CallbackInProgress = TOBII_ERROR_CALLBACK_IN_PROGRESS as isize,
+    Unknown(TobiiError),
+}
+
+impl Error {
+    fn tobii_error_as_result(tobii_error: TobiiError) -> Result<(), Error> {
+        match tobii_error {
+            TOBII_ERROR_NO_ERROR => Err(Error::NoError),
+            TOBII_ERROR_INTERNAL => Err(Error::Internal),
+            TOBII_ERROR_INSUFFICIENT_LICENSE => Err(Error::InsufficientLicense),
+            TOBII_ERROR_NOT_SUPPORTED => Err(Error::NotSupported),
+            TOBII_ERROR_NOT_AVAILABLE => Err(Error::NotAvailable),
+            TOBII_ERROR_CONNECTION_FAILED => Err(Error::ConnectionFailed),
+            TOBII_ERROR_TIMED_OUT => Err(Error::TimedOut),
+            TOBII_ERROR_ALLOCATION_FAILED => Err(Error::AllocationFailed),
+            TOBII_ERROR_INVALID_PARAMETER => Err(Error::InvalidParameter),
+            TOBII_ERROR_CALIBRATION_ALREADY_STARTED => Err(Error::CalibrationAlreadyStarted),
+            TOBII_ERROR_CALIBRATION_NOT_STARTED => Err(Error::CalibrationNotStarted),
+            TOBII_ERROR_ALREADY_SUBSCRIBED => Err(Error::AlreadySubscribed),
+            TOBII_ERROR_NOT_SUBSCRIBED => Err(Error::NotSubscribed),
+            TOBII_ERROR_OPERATION_FAILED => Err(Error::OperationFailed),
+            TOBII_ERROR_CONFLICTING_API_INSTANCES => Err(Error::ConflictingApiInstances),
+            TOBII_ERROR_CALIBRATION_BUSY => Err(Error::CalibrationBusy),
+            TOBII_ERROR_CALLBACK_IN_PROGRESS => Err(Error::CallbackInProgress),
+            _ => Err(Error::Unknown(tobii_error)),
+        }
+    }
+}
+
+pub struct Device {
+    pub serial_number: String,
+    pub model: String,
+    pub generation: String,
+    pub firmware_version: String,
+    pub integration_id: String,
+    pub hw_calibration_version: String,
+    pub hw_calibration_date: String,
+    pub lot_id: String,
+    pub integration_type: String,
+    pub runtime_build_version: String,
+    ptr: *mut TobiiDevice,
+    url: String,
+}
+
+impl Device {
+    pub fn new(api: Api, url: String, field_of_use: FieldOfUse) -> Result<Device, Error> {
+        unsafe {
+            let url_c = CString::new(&url).unwrap().as_c_str();
+            let mut device_ptr: *mut TobiiDevice = std::mem::zeroed();
+            let error = tobii_device_create(api.ptr,
+                                            url_c.as_ptr(),
+                                            field_of_use as u32,
+                                            &mut device_ptr as *mut *mut TobiiDevice);
+            match Error::tobii_error_as_result(error) {
+                Ok(_) => {
+                    Ok(Device {
+                        ptr: device_ptr,
+                        url,
+                        ..Default::default()
+                    })
+                }
+                Err(error_type) => error_type
+            }
+        }
+    }
+
+    pub fn get_info(&mut self) {
+
+    }
+
+    pub fn reconnect(&mut self) {
+
+    }
+}
+
+impl Drop for Device {
+    fn drop(&mut self) {
+        let status: TobiiError = unsafe {
+            tobii_device_destroy(self.ptr)
+        };
+        assert_eq!(status, TOBII_ERROR_NO_ERROR);
+        println!("Successfully destroyed Device")
+    }
+}
 
 pub struct Api {
     ptr: *mut TobiiApi
@@ -17,10 +131,6 @@ impl Drop for Api {
 
 impl Api {
     unsafe extern "C" fn custom_api_log(_log_context: *mut c_void, level: LogLevel, text: *const c_char) {
-        // if level > TOBII_LOG_LEVEL_WARN {
-        //     return;
-        // }
-        println!("Log reached");
         println!("INTERNAL LOG - {}: {}", level, std::ffi::CStr::from_ptr(text).to_str().unwrap());
     }
 
@@ -71,7 +181,7 @@ impl Api {
         timestamp
     }
 
-    pub fn print_devices_to_stdout(&mut self) {
+    pub fn devices(&mut self) {
         /// Will be called for each device found during enumeration.
         ///
         /// Based on the example code in the Tobii documentation C++ example [here](https://developer.tobii.com/product-integration/stream-engine/getting-started/)

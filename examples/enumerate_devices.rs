@@ -5,5 +5,5 @@ fn main() {
     let mut api = Api::new();
     println!("{}", Api::get_api_version_string());
     println!("{}", api.system_clock());
-    api.print_devices_to_stdout();
+    api.devices();
 }
