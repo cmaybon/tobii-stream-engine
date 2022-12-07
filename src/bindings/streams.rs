@@ -107,7 +107,6 @@ pub const TOBII_NOTIFICATION_VALUE_TYPE_ENABLED_EYE: TobiiNotificationValueType 
 pub const TOBII_NOTIFICATION_VALUE_TYPE_STRING: TobiiNotificationValueType = 6;
 
 #[repr(C)]
-#[derive(Copy, Clone)]
 pub struct TobiiNotification {
     pub type_: TobiiNotificationType,
     pub value_type: TobiiNotificationValueType,
@@ -115,14 +114,13 @@ pub struct TobiiNotification {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone)]
 pub union TobiiNotification_Union_Value {
     pub float_: f32,
-    pub state: tobii_state_bool_t,
-    pub display_area: tobii_display_area_t,
+    pub state: TobiiStateBool,
+    pub display_area:  std::mem::ManuallyDrop<TobiiDisplayArea>,
     pub uint_: u32,
-    pub enabled_eye: tobii_enabled_eye_t,
-    pub string_: tobii_state_string_t,
+    pub enabled_eye: TobiiEnabledEye,
+    pub string_: TobiiStateString,
 }
 
 pub type TobiiNotificationCallback = ::std::option::Option<

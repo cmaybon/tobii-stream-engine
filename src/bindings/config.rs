@@ -113,7 +113,7 @@ extern "C" {
         user_data: *mut c_void,
     ) -> TobiiError;
     pub fn tobii_calibration_parse(
-        api: *mut tobii_api_t,
+        api: *mut TobiiApi,
         data: *const c_void,
         data_size: usize,
         receiver: TobiiCalibrationPointDataReceiver,
@@ -130,19 +130,19 @@ extern "C" {
     ) -> TobiiError;
     pub fn tobii_get_display_area(
         device: *mut TobiiDevice,
-        display_area: *mut tobii_display_area_t,
+        display_area: *mut TobiiDisplayArea,
     ) -> TobiiError;
     pub fn tobii_set_display_area(
         device: *mut TobiiDevice,
-        display_area: *const tobii_display_area_t,
+        display_area: *const TobiiDisplayArea,
     ) -> TobiiError;
     pub fn tobii_calculate_display_area_basic(
-        api: *mut tobii_api_t,
+        api: *mut TobiiApi,
         width_mm: f32,
         height_mm: f32,
         offset_x_mm: f32,
         geometry_mounting: *const TobiiGeometryMounting,
-        display_area: *mut tobii_display_area_t,
+        display_area: *mut TobiiDisplayArea,
     ) -> TobiiError;
     pub fn tobii_get_device_name(
         device: *mut TobiiDevice,

@@ -1,5 +1,5 @@
 use std::os::raw::*;
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug};
 
 pub type TobiiError = c_uint;
 

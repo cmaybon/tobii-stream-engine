@@ -1,7 +1,6 @@
 use crate::bindings::core::*;
 use crate::helpers;
-use crate::device::{Device, FieldOfUse};
-use crate::error::*;
+use crate::error::Error;
 use std::os::raw::*;
 use std::ffi::{CStr, CString};
 
@@ -195,7 +194,7 @@ impl Device {
 
     pub fn get_info(&mut self) {
         unsafe {
-            let mut tobii_device_info = &mut TobiiDeviceInfo::default() as *mut TobiiDeviceInfo;
+            let tobii_device_info = &mut TobiiDeviceInfo::default() as *mut TobiiDeviceInfo;
             let error = tobii_get_device_info(self.ptr, tobii_device_info);
             assert_eq!(error, TOBII_ERROR_NO_ERROR);
             self.serial_number = helpers::c_char_ptr_to_string((*tobii_device_info).serial_number.as_ptr());

@@ -1,6 +1,6 @@
-#[allow(dead_code)]
 mod helpers;
 
+#[allow(dead_code)]
 pub mod bindings;
 pub mod api;
 pub mod error;
