@@ -22,7 +22,7 @@ pub enum Error {
 }
 
 impl Error {
-    fn tobii_error_as_result(tobii_error: TobiiError) -> Result<(), Error> {
+    pub fn tobii_error_as_result(tobii_error: TobiiError) -> Result<(), Error> {
         match tobii_error {
             TOBII_ERROR_NO_ERROR => Ok(()),
             TOBII_ERROR_INTERNAL => Err(Error::Internal),
