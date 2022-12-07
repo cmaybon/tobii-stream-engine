@@ -286,11 +286,11 @@ extern {
         state: TobiiState,
         value: *mut TobiiStateString,
     ) -> TobiiError; // TODO trying *mut instead of by direct value
-    pub fn tobii_capability_supported(
-        device: *mut TobiiDevice,
-        capability: TobiiCapability,
-        supported: *mut TobiiSupported,
-    ) -> TobiiError;
+pub fn tobii_capability_supported(
+    device: *mut TobiiDevice,
+    capability: TobiiCapability,
+    supported: *mut TobiiSupported,
+) -> TobiiError;
     pub fn tobii_stream_supported(
         device: *mut TobiiDevice,
         stream: TobiiStream,

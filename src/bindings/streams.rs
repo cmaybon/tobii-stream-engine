@@ -154,13 +154,13 @@ extern "C" {
     pub fn tobii_gaze_point_subscribe(
         device: *mut TobiiDevice,
         callback: TobiiGazePointCallback,
-        user_data: *mut c_void
+        user_data: *mut c_void,
     ) -> TobiiError;
     pub fn tobii_gaze_point_unsubscribe(device: *mut TobiiDevice) -> TobiiError;
     pub fn tobii_gaze_origin_subscribe(
         device: *mut TobiiDevice,
         callback: TobiiGazeOriginCallback,
-        user_data: *mut c_void
+        user_data: *mut c_void,
     ) -> TobiiError;
     pub fn tobii_gaze_origin_unsubscribe(device: *mut TobiiDevice) -> TobiiError;
     pub fn tobii_eye_position_normalized_subscribe(

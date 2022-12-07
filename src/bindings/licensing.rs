@@ -9,18 +9,20 @@ pub struct TobiiLicenseKey {
 }
 
 pub type TobiiLicenseValidationResult = c_int;
+
 pub const TOBII_LICENSE_VALIDATION_RESULT_OK: TobiiLicenseValidationResult = 0;
 pub const TOBII_LICENSE_VALIDATION_RESULT_TAMPERED: TobiiLicenseValidationResult = 1;
-pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_APPLICATION_SIGNATURE : TobiiLicenseValidationResult = 2 ;
-pub const TOBII_LICENSE_VALIDATION_RESULT_NONSIGNED_APPLICATION : TobiiLicenseValidationResult = 3 ;
+pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_APPLICATION_SIGNATURE: TobiiLicenseValidationResult = 2;
+pub const TOBII_LICENSE_VALIDATION_RESULT_NONSIGNED_APPLICATION: TobiiLicenseValidationResult = 3;
 pub const TOBII_LICENSE_VALIDATION_RESULT_EXPIRED: TobiiLicenseValidationResult = 4;
 pub const TOBII_LICENSE_VALIDATION_RESULT_PREMATURE: TobiiLicenseValidationResult = 5;
 pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_PROCESS_NAME: TobiiLicenseValidationResult = 6;
-pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_SERIAL_NUMBER : TobiiLicenseValidationResult = 7 ;
+pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_SERIAL_NUMBER: TobiiLicenseValidationResult = 7;
 pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_MODEL: TobiiLicenseValidationResult = 8;
-pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_PLATFORM_TYPE : TobiiLicenseValidationResult = 9 ;
+pub const TOBII_LICENSE_VALIDATION_RESULT_INVALID_PLATFORM_TYPE: TobiiLicenseValidationResult = 9;
 
 pub type TobiiFeatureGroup = c_int;
+
 pub const TOBII_FEATURE_GROUP_BLOCKED: TobiiFeatureGroup = 0;
 pub const TOBII_FEATURE_GROUP_CONSUMER: TobiiFeatureGroup = 1;
 pub const TOBII_FEATURE_GROUP_CONFIG: TobiiFeatureGroup = 2;

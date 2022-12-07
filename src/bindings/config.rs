@@ -16,6 +16,7 @@ pub struct TobiiCalibrationPointData {
     pub right_status: TobiiCalibrationPointStatus,
     pub right_mapping_xy: [f32; 2usize],
 }
+
 pub type TobiiCalibrationPointDataReceiver = ::std::option::Option<
     unsafe extern "C" fn(
         point_data: *const TobiiCalibrationPointData,
@@ -46,7 +47,7 @@ pub type TobiiOutputFrequencyReceiver = ::std::option::Option<
     unsafe extern "C" fn(
         output_frequency:
         f32, user_data:
-        *mut c_void
+        *mut c_void,
     ),
 >;
 
