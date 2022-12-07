@@ -66,6 +66,7 @@ pub type TobiiFaceTypeReceiver = ::std::option::Option<
     ),
 >;
 
+#[link(name = "third_party/tobii/tobii_stream_engine")]
 extern "C" {
     pub fn tobii_gaze_data_subscribe(
         device: *mut TobiiDevice,
