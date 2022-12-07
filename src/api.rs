@@ -4,6 +4,17 @@ use crate::error::Error;
 use std::os::raw::*;
 use std::ffi::{CStr, CString};
 
+pub enum FieldOfUse {
+    /// Device will be created for interactive use. No special license is required for this type use.
+    /// Eye tracking data is only used as a user input for interaction experiences and cannot be
+    /// stored, transmitted, nor analyzed or processed for other purposes.
+    Interactive = TOBII_FIELD_OF_USE_INTERACTIVE as isize,
+    /// Device will be created for analytical use. This requires a special license from Tobii.
+    /// Eye tracking data is used to analyze user attention, behavior or decisions in applications
+    /// that store, transfer, record or analyze the data.
+    Analytical = TOBII_FIELD_OF_USE_ANALYTICAL as isize,
+}
+
 pub struct Api {
     ptr: *mut TobiiApi
 }
@@ -99,7 +110,7 @@ impl Api {
         let urls = self.device_urls();
         let mut devices: Vec<Device> = vec![];
         for url in urls {
-            let result = Device::new(&self, url, FieldOfUse::Interactive);
+            let result = Device::new(&self, &url, FieldOfUse::Interactive);
             match result {
                 Ok(device) => devices.push(device),
                 Err(_) => {}
@@ -116,22 +127,10 @@ impl Api {
         message.to_string()
     }
 
-    pub fn new_device(&self, url: String, field_of_use: FieldOfUse) -> Result<Device, Error> {
+    pub fn new_device(&self, url: &String, field_of_use: FieldOfUse) -> Result<Device, Error> {
         Device::new(&self, url, field_of_use)
     }
 }
-
-pub enum FieldOfUse {
-    /// Device will be created for interactive use. No special license is required for this type use.
-    /// Eye tracking data is only used as a user input for interaction experiences and cannot be
-    /// stored, transmitted, nor analyzed or processed for other purposes.
-    Interactive = TOBII_FIELD_OF_USE_INTERACTIVE as isize,
-    /// Device will be created for analytical use. This requires a special license from Tobii.
-    /// Eye tracking data is used to analyze user attention, behavior or decisions in applications
-    /// that store, transfer, record or analyze the data.
-    Analytical = TOBII_FIELD_OF_USE_ANALYTICAL as isize,
-}
-
 
 #[derive(Debug)]
 pub struct Device {
@@ -150,7 +149,7 @@ pub struct Device {
 }
 
 impl Device {
-    pub fn new(api: &Api, url: String, field_of_use: FieldOfUse) -> Result<Device, Error> {
+    pub fn new(api: &Api, url: &String, field_of_use: FieldOfUse) -> Result<Device, Error> {
         unsafe {
             let url_c = CString::new(url.as_bytes()).unwrap();
             let url_c = url_c.as_c_str();
@@ -161,7 +160,7 @@ impl Device {
                                             &mut device_ptr as *mut *mut TobiiDevice);
             match Error::tobii_error_as_result(error) {
                 Ok(_) => {
-                    Ok(Device::new_from_url(device_ptr, url))
+                    Ok(Device::new_from_url(device_ptr, url.clone()))
                 }
                 Err(error_type) => Err(error_type)
             }
