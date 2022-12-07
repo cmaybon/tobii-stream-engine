@@ -1,4 +1,4 @@
-use crate::bindings::core::*;
+use tobii_stream_engine_sys::core::*;
 
 #[derive(Debug)]
 pub enum Error {

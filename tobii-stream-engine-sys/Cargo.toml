@@ -1,0 +1,12 @@
+[package]
+name = "tobii-stream-engine-sys"
+version = "0.1.0"
+authors = ["Callum Maybon"]
+repository = "https://github.com/cmaybon/tobii-stream-engine"
+license = "MIT OR Apache-2.0"
+description = "Bindings to `tobii_stream_engine.dll`"
+edition = "2021"
+include = [
+    "../LICENSE-APACHE",
+    "../LICENSE-MIT"
+]

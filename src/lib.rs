@@ -1,7 +1,7 @@
 mod helpers;
 
 #[allow(dead_code)]
-pub mod bindings;
+use tobii_stream_engine_sys;
 pub mod api;
 pub mod error;
 

@@ -1,4 +1,4 @@
-use tobii_stream_engine::bindings::core::*;
+use tobii_stream_engine_sys::core::*;
 use std::os::raw::{c_longlong};
 
 fn main() {

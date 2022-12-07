@@ -1,8 +1,16 @@
 [package]
 name = "tobii-stream-engine"
 version = "0.1.0"
+authors = ["Callum Maybon"]
+repository = "https://github.com/cmaybon/tobii-stream-engine"
+license = "MIT OR Apache-2.0"
+description = ""
 edition = "2021"
+include = [
+    "LICENSE-APACHE",
+    "LICENSE-MIT"
+]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tobii-stream-engine-sys = { path = "tobii-stream-engine-sys", version = "0.1.0"}

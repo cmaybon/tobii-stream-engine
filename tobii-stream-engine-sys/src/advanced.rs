@@ -1,4 +1,4 @@
-use crate::bindings::core::*;
+use crate::core::*;
 use std::os::raw::*;
 
 #[repr(C)]

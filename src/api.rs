@@ -1,4 +1,4 @@
-use crate::bindings::core::*;
+use tobii_stream_engine_sys::core::*;
 use crate::helpers;
 use crate::error::Error;
 use std::os::raw::*;
@@ -148,6 +148,16 @@ pub struct Device {
     pub runtime_build_version: String,
 }
 
+impl Drop for Device {
+    fn drop(&mut self) {
+        let status: TobiiError = unsafe {
+            tobii_device_destroy(self.ptr)
+        };
+        assert_eq!(status, TOBII_ERROR_NO_ERROR);
+        println!("Successfully destroyed Device")
+    }
+}
+
 impl Device {
     pub fn new(api: &Api, url: &String, field_of_use: FieldOfUse) -> Result<Device, Error> {
         unsafe {
@@ -201,15 +211,5 @@ impl Device {
             self.generation = helpers::c_char_ptr_to_string((*tobii_device_info).generation.as_ptr());
             self.firmware_version = helpers::c_char_ptr_to_string((*tobii_device_info).firmware_version.as_ptr());
         }
-    }
-}
-
-impl Drop for Device {
-    fn drop(&mut self) {
-        let status: TobiiError = unsafe {
-            tobii_device_destroy(self.ptr)
-        };
-        assert_eq!(status, TOBII_ERROR_NO_ERROR);
-        println!("Successfully destroyed Device")
     }
 }

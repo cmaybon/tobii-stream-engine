@@ -1,6 +1,6 @@
 pub mod core;
-pub mod streams;
-pub mod config;
 pub mod advanced;
+pub mod config;
 pub mod licensing;
 pub mod wearable;
+pub mod streams;
