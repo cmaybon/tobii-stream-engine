@@ -1,5 +1,5 @@
 extern crate tobii_stream_engine;
-use tobii_stream_engine::api::{Api, Device, FieldOfUse};
+use tobii_stream_engine::{Api, Device, FieldOfUse};
 
 fn main() {
     let mut api = Api::new();
