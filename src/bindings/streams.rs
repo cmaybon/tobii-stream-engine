@@ -149,6 +149,7 @@ pub type TobiiUserPositionGuideCallback = ::std::option::Option<
     ),
 >;
 
+#[link(name = "third_party/tobii/tobii_stream_engine")]
 extern "C" {
     pub fn tobii_gaze_point_subscribe(
         device: *mut TobiiDevice,

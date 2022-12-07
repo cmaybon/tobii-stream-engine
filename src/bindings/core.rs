@@ -41,7 +41,7 @@ pub const TOBII_LOG_LEVEL_TRACE: LogLevel = 4;
 pub type TobiiLogFunc = std::option::Option<
     unsafe extern "C" fn(log_context: *mut c_void,
                          level: LogLevel,
-                         text: *const c_char
+                         text: *const c_char,
     )
 >;
 
@@ -121,7 +121,7 @@ impl Default for TobiiDeviceInfo {
             hw_calibration_date: [c_char::default(); 128],
             lot_id: [c_char::default(); 128],
             integration_type: [c_char::default(); 256],
-            runtime_build_version:[c_char::default(); 256],
+            runtime_build_version: [c_char::default(); 256],
         }
     }
 }
@@ -201,7 +201,7 @@ pub const TOBII_STREAM_WEARABLE_FOVEATED_GAZE: TobiiStream = 11;
 pub type TobiiDataReceiver = std::option::Option<
     unsafe extern "C" fn(data: *const c_void,
                          size: usize,
-                         user_data: *mut c_void
+                         user_data: *mut c_void,
     )
 >;
 
@@ -227,44 +227,73 @@ pub const TOBII_ENABLED_EYE_BOTH: TobiiEnabledEye = 2;
 extern {
     pub fn tobii_error_message(error: TobiiError) -> *const c_char;
     pub fn tobii_get_api_version(version: *mut TobiiVersion) -> TobiiError;
-    pub fn tobii_api_create(api: *mut *mut TobiiApi,
-                            custom_alloc: *const TobiiCustomAlloc,
-                            custom_log: *const TobiiCustomLog) -> TobiiError;
+    pub fn tobii_api_create(
+        api: *mut *mut TobiiApi,
+        custom_alloc: *const TobiiCustomAlloc,
+        custom_log: *const TobiiCustomLog,
+    ) -> TobiiError;
     pub fn tobii_api_destroy(api: *mut TobiiApi) -> TobiiError;
-    pub fn tobii_system_clock(api: *mut TobiiApi,
-                              timestamp_us: *mut c_longlong) -> TobiiError;
-    pub fn tobii_enumerate_local_device_urls(api: *mut TobiiApi,
-                                             receiver: TobiiDeviceUrlReceiver,
-                                             user_data: *mut c_void) -> TobiiError;
-    pub fn tobii_enumerate_local_device_urls_ex(api: *mut TobiiApi,
-                                                receiver: TobiiDeviceUrlReceiver,
-                                                user_data: *mut c_void,
-                                                device_generations: c_uint) -> TobiiError;
-    pub fn tobii_wait_for_callbacks(device_count: c_int,
-                                    devices: *const *mut TobiiDevice) -> TobiiError;
-    pub fn tobii_device_create(api: *mut TobiiApi,
-                               url: *const c_char,
-                               field_of_use: TobiiFieldOfUse,
-                               device: *mut *mut TobiiDevice) -> TobiiError;
+    pub fn tobii_system_clock(
+        api: *mut TobiiApi,
+        timestamp_us: *mut c_longlong,
+    ) -> TobiiError;
+    pub fn tobii_enumerate_local_device_urls(
+        api: *mut TobiiApi,
+        receiver: TobiiDeviceUrlReceiver,
+        user_data: *mut c_void,
+    ) -> TobiiError;
+    pub fn tobii_enumerate_local_device_urls_ex(
+        api: *mut TobiiApi,
+        receiver: TobiiDeviceUrlReceiver,
+        user_data: *mut c_void,
+        device_generations: c_uint,
+    ) -> TobiiError;
+    pub fn tobii_wait_for_callbacks(
+        device_count: c_int,
+        devices: *const *mut TobiiDevice,
+    ) -> TobiiError;
+    pub fn tobii_device_create(
+        api: *mut TobiiApi,
+        url: *const c_char,
+        field_of_use: TobiiFieldOfUse,
+        device: *mut *mut TobiiDevice,
+    ) -> TobiiError;
     pub fn tobii_device_destroy(device: *mut TobiiDevice) -> TobiiError;
     pub fn tobii_device_reconnect(device: *mut TobiiDevice) -> TobiiError;
     pub fn tobii_device_process_callbacks(device: *mut TobiiDevice) -> TobiiError;
     pub fn tobii_device_clear_callback_buffers(device: *mut TobiiDevice) -> TobiiError;
     pub fn tobii_update_timesync(device: *mut TobiiDevice) -> TobiiError;
-    pub fn tobii_get_device_info(device: *mut TobiiDevice,
-                                 device_info: *mut TobiiDeviceInfo) -> TobiiError;
-    pub fn tobii_get_track_box(device: *mut TobiiDevice,
-                               track_box: *mut TobiiTrackBox) -> TobiiError;
-    pub fn tobii_get_state_bool(device: *mut TobiiDevice,
-                                state: TobiiState, value: *mut TobiiStateBool) -> TobiiError;
-    pub fn tobii_get_state_uint32(device: *mut TobiiDevice,
-                                  state: TobiiState, value: *mut c_uint) -> TobiiError;
-    pub fn tobii_get_state_string(device: *mut TobiiDevice,
-                                  state: TobiiState, value: *mut TobiiStateString) -> TobiiError; // TODO trying *mut instead of by direct value
-    pub fn tobii_capability_supported(device: *mut TobiiDevice,
-                                      capability: TobiiCapability,
-                                      supported: *mut TobiiSupported) -> TobiiError;
-    pub fn tobii_stream_supported(device: *mut TobiiDevice,
-                                  stream: TobiiStream,
-                                  supported: *mut TobiiSupported) -> TobiiError;
+    pub fn tobii_get_device_info(
+        device: *mut TobiiDevice,
+        device_info: *mut TobiiDeviceInfo,
+    ) -> TobiiError;
+    pub fn tobii_get_track_box(
+        device: *mut TobiiDevice,
+        track_box: *mut TobiiTrackBox,
+    ) -> TobiiError;
+    pub fn tobii_get_state_bool(
+        device: *mut TobiiDevice,
+        state: TobiiState,
+        value: *mut TobiiStateBool,
+    ) -> TobiiError;
+    pub fn tobii_get_state_uint32(
+        device: *mut TobiiDevice,
+        state: TobiiState,
+        value: *mut c_uint,
+    ) -> TobiiError;
+    pub fn tobii_get_state_string(
+        device: *mut TobiiDevice,
+        state: TobiiState,
+        value: *mut TobiiStateString,
+    ) -> TobiiError; // TODO trying *mut instead of by direct value
+    pub fn tobii_capability_supported(
+        device: *mut TobiiDevice,
+        capability: TobiiCapability,
+        supported: *mut TobiiSupported,
+    ) -> TobiiError;
+    pub fn tobii_stream_supported(
+        device: *mut TobiiDevice,
+        stream: TobiiStream,
+        supported: *mut TobiiSupported,
+    ) -> TobiiError;
 }
